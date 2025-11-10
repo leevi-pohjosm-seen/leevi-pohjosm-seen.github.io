@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello from Company — Your Personalised Onboarding</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --brand-accent: #FF0C0B;
+        --brand-dark: #111111;
+        --text-muted: #000000;
+        --maxw: 760px;
+      }
+      html, body { background:#f0f0f0; }
+      body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; color: var(--brand-dark); }
+      .container.narrow { max-width: var(--maxw); }
+      .brand-logo { height: 80px; }
+      .navbar.is-transparent { box-shadow: none; border-bottom: 0; color: #f0f0f0; }
+      .navbar { background-color: #fff !important; box-shadow: none; border-bottom: 1px solid #f1f1f1; padding-top: 20px; padding-bottom: 20px; }
+      .title { color: #000000;}
+
+
+      .headline { font-weight: 800; letter-spacing: -0.02em; }
+      .lede { color: var(--text-muted); }
+
+      .button.is-cta { background: var(--brand-accent); color:#111111; border-color: transparent; }
+      .button.is-cta:hover { filter: brightness(0.92); }
+
+      .video-card { overflow: hidden; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.06); }
+      .card-header { border-bottom: 1px solid #f0f0f0; }
+      .card-header-title { font-weight: 700; }
+
+    </style>
+  </head>
+  <body>
+    <!-- Topbar -->
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="container narrow">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="#" aria-label="Company home">
+            <img class="brand-logo" src="https://storage.googleapis.com/landing-page-static-assets-prod/images/company-logo-horizontal-color.png" alt="Company logo"/>
+          </a>
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navMenu">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
+        </div>
+        <div id="navMenu" class="navbar-menu">
+          <div class="navbar-end">
+            <a class="navbar-item" href="index.html">Simplified version</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero / Greeting -->
+    <section class="section pb-2 pt-5">
+      <div class="container narrow">
+        <div class="columns is-vcentered">
+          <div class="column is-12">
+            <h1 class="title is-1">
+              <h1 class="title is-1">
+  Hello<span id="welcomeComma">, </span><span id="custName"> there</span>!
+            <span></span>
+            <p class="subtitle is-5 lede">
+              Welcome to Company. To kick things off, we’ve made something special just for you.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video Card -->
+    <section id="watch" class="section pt-4">
+      <div class="container narrow">
+        <div class="card video-card">
+          <header class="card-header">
+            <p class="card-header-title">Your welcome video</p>
+          </header>
+          <div class="card-content">
+            <div class="content">
+              <div class="embed is-16by9">
+                <iframe id="onboardingFrame" src="about:blank" title="Personalised welcome video" style="aspect-ratio: 16 / 9; border: 0;"
+        scrolling="no"
+        webkitallowfullscreen mozallowfullscreen allowfullscreen
+        allow="clipboard-write; fullscreen; web-share;"></iframe>
+              </div>
+              <p class="is-size-6 mt-3 has-text-grey">
+                Tip: If the video doesn't load, make sure the URL in the <code>?video=</code> parameter is an embeddable link from <strong>player.seen.io</strong>.
+              </p>
+            </div>
+          </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+        <strong>Note:</strong> this is a <a href="https://seen.io/">Seen.io</a> demo site.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Mobile burger
+      const burger = document.querySelector('.navbar-burger');
+      const menu = document.getElementById('navMenu');
+      if (burger && menu) {
+        burger.addEventListener('click', () => {
+          burger.classList.toggle('is-active');
+          menu.classList.toggle('is-active');
+        });
+      }
+
+      // Local-only Base64 token + allowlist for player.seen.io
+      const ALLOWED_HOST = 'player.seen.io';
+
+      function base64urlEncode(str) {
+        return btoa(str).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
+      }
+      function base64urlDecode(str) {
+        const pad = '='.repeat((4 - (str.length % 4)) % 4);
+        const b64 = str.replaceAll('-','+').replaceAll('_','/') + pad;
+        return atob(b64);
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      const nameParam = params.get('name');
+      const videoParam = params.get('video');
+
+      const nameEl = document.getElementById('custName');
+      const commaEl = document.getElementById('welcomeComma');
+      const frame = document.getElementById('onboardingFrame');
+      const notice = document.getElementById('videoNotice');
+      const noticeBody = document.getElementById('videoNoticeBody');
+
+      (async () => {
+        function setVideoUrl(urlStr) {
+          try {
+            const u = new URL(urlStr, window.location.href);
+            if (u.host !== ALLOWED_HOST) throw new Error('Unapproved video host');
+            frame.src = u.href;
+            notice.style.display = 'none';
+            return true;
+          } catch (e) {
+            notice.style.display = '';
+            notice.classList.remove('is-warning');
+            notice.classList.add('is-danger');
+            noticeBody.innerHTML = 'Video cannot be loaded. Only videos hosted on <code>player.seen.io</code> are allowed.';
+            return false;
+          }
+        }
+
+        if (nameParam) { nameEl.textContent = nameParam; commaEl.style.display = ''; } else { commaEl.style.display = 'none'; }
+        if (videoParam) {
+          try {
+            const decodedVideo = decodeURIComponent(videoParam);
+            const ok = setVideoUrl(decodedVideo);
+            if (!ok) return;
+
+            const payload = { name: nameParam || null, video: new URL(decodedVideo, window.location.href).href, ts: Date.now() };
+            const tokenStr = base64urlEncode(JSON.stringify(payload));
+            const newUrl = new URL(window.location.href);
+            newUrl.search = '';
+            newUrl.searchParams.set('token', tokenStr);
+            history.replaceState({}, '', newUrl);
+          } catch (e) {
+            notice.style.display = '';
+            notice.classList.remove('is-warning');
+            notice.classList.add('is-danger');
+            noticeBody.innerHTML = 'We could not load your video. Provide a valid <code>?video=</code> parameter.';
+          }
+        } else {
+          notice.style.display = '';
+        }
+      })();
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
